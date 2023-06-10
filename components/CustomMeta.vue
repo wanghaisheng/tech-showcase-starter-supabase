@@ -1,8 +1,23 @@
+<script setup lang="ts">
+defineProps({
+  title: String,
+  description: {
+    type: String,
+    default:
+      'A collection of projects made with Supabase – Websites, Mobile Apps, SaaS, Plugins and more!',
+  },
+  image: {
+    type: String,
+    default: 'https://www.madewithsupabase.com/og.png',
+  },
+})
+</script>
+
 <template>
   <div>
     <Html lang="en-US">
       <Head>
-        <Title>{{ title }}</Title>
+        <Title>{{ title || "Loading..." }}</Title>
         <Meta name="description" :content="description" />
 
         <Meta name="og:title" :content="title" />
@@ -22,18 +37,3 @@
     </Html>
   </div>
 </template>
-
-<script setup lang="ts">
-defineProps({
-  title: String,
-  description: {
-    type: String,
-    default:
-      "A collection of projects made with Supabase – Websites, Mobile Apps, SaaS, Plugins and more!",
-  },
-  image: {
-    type: String,
-    default: "https://www.madewithsupabase.com/og.png",
-  },
-})
-</script>

@@ -1,116 +1,78 @@
+<script setup lang="ts">
+import { useInfiniteScroll } from '@vueuse/core'
+
+const { count, page, projects } = useInfinitePage('latest-project')
+const { upsertProjects } = useAllProjects()
+const client = useSupabase()
+
+const { pending, refresh } = useLazyAsyncData('projects', async () => {
+  const { data, count: rowCount } = await client
+    .from('products_view')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(page.value * 15, page.value * 15 + 14)
+
+  if (data && page.value === 0)
+    count.value = rowCount ?? 0
+
+  if (data) {
+    projects.value = [...projects.value, ...data]
+    upsertProjects(data)
+  }
+  return projects.value?.filter(i => i.id)
+})
+
+definePageMeta({
+  title: 'New project',
+})
+
+const navLinks = [
+  { path: '/', label: 'Latest' },
+  { path: '/top', label: 'Top' },
+]
+
+const { el, bus } = useInfiniteBus()
+
+function fetchNextPage() {
+  if (pending.value)
+    return
+  page.value++
+  refresh()
+}
+
+onMounted(() => [
+  useInfiniteScroll(window, () => fetchNextPage(), { distance: 10 }),
+])
+</script>
+
 <template>
-  <div>
-    <CustomMeta :title="'Supabase Showcase | Made with Supabase'" />
+  <div class="flex flex-col">
+    <CustomMeta title="Supabase Showcase" />
 
-    <div class="mt-8 flex flex-col items-center">
-      <h1 class="text-3xl md:text-4xl text-center">Made with Supabase</h1>
+    <ol class="pl-0 flex items-center mt-6 sticky top-0 z-10">
+      <li v-for="link in navLinks">
+        <NuxtLink class="" :to="link.path">
+          <div
+            class="px-6 py-4 mr-4 border-b-2 border-transparent hover:border-white transition"
+          >
+            {{ link.label }}
+          </div>
+        </NuxtLink>
+      </li>
+    </ol>
+
+    <div v-if="projects" class="w-full mt-8 pb-20">
+      <div class="card-grid">
+        <Card v-for="item in projects" :item="item" />
+      </div>
+
+      <Loading :loading="pending" />
     </div>
-
-    <Banner></Banner>
-
-    <transition name="fade" mode="out-in">
-      <div v-if="hero && hero.length" class="flex flex-col items-center">
-        <HeroSlider :data="hero"></HeroSlider>
-
-        <div class="mt-16 sm:mt-24">
-          <h1 class="text-4xl text-center mb-4 sm:mb-8">Testimonial</h1>
-          <div class="card-grid">
-            <div v-for="item in testimonial" :key="item.id">
-              <Card :item="item"></Card>
-            </div>
-          </div>
-        </div>
-
-        <Divider class="my-16 !bg-dark-700"></Divider>
-
-        <div>
-          <h1 ref="target" class="text-4xl text-center mb-4 sm:mb-8">
-            Most Viewed
-          </h1>
-          <div v-if="latest" class="h-full relative">
-            <div class="card-grid">
-              <div v-for="item in latest" :key="item.id">
-                <Card :item="item"></Card>
-              </div>
-            </div>
-            <transition name="fade" mode="out-in">
-              <div
-                v-if="pending"
-                class="absolute top-0 left-0 w-full h-full flex justify-center bg-dark-900"
-              >
-                <SVGCircle class="mt-48 animate-ping"></SVGCircle>
-              </div>
-            </transition>
-          </div>
-        </div>
-      </div>
-      <div v-else class="w-full h-screen flex items-center justify-center">
-        <SVGCircle class="animate-ping"></SVGCircle>
-      </div>
-    </transition>
-
-    <Pagination :count="itemCount" :target="target"></Pagination>
   </div>
 </template>
 
-<script setup lang="ts">
-const { $supabase } = useNuxtApp()
-
-let itemCount = useState("item-count", () => 0)
-const page = computed(() => (route.query.page ? +route.query.page - 1 : 0))
-
-const route = useRoute()
-
-const [{ data: homeData }, { data: latest }] = await Promise.all([
-  useLazyAsyncData("hero testimonial", () => $fetch("/api/project/home")),
-
-  useLazyAsyncData(
-    "latest",
-    () =>
-      $supabase
-        .from("products_view")
-        .select("*", { count: "exact" })
-        .order("views", { ascending: false })
-        .range(page.value * 12, page.value * 12 + 11),
-    {
-      transform: (a: any) => {
-        itemCount.value = a.count
-        return a.data
-      },
-    }
-  ),
-])
-const target = ref()
-
-const hero = computed(() => homeData.value?.[0].data)
-const testimonial = computed(() => homeData.value?.[1].data)
-
-const pending = ref(false)
-const fetchLatest = async () => {
-  pending.value = true
-  const { data, error, count } = await $supabase
-    .from("products_view")
-    .select("*", { count: "exact" })
-    .order("views", { ascending: false })
-    .range(+page.value * 12, +page.value * 12 + (12 - 1))
-  if (data) {
-    latest.value = data
-  }
-  pending.value = false
+<style scoped lang="postcss">
+.router-link-active > div {
+  @apply border-white;
 }
-
-watch(
-  () => route.query,
-  (n) => {
-    if (route.query.page) fetchLatest()
-  },
-  { immediate: true }
-)
-
-definePageMeta({
-  pageTransition: {
-    name: "fade",
-    mode: "out-in",
-  },
-})
-</script>
+</style>

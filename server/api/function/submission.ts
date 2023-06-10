@@ -1,16 +1,20 @@
-import { supabase } from "../../_lib/supabase"
-import type { IncomingMessage, ServerResponse } from "http"
-import { useBody } from "h3"
+import { useSupabaseServer } from '~~/composables/supabase'
 
-export default async (req: IncomingMessage, res: ServerResponse) => {
-  const { form } = await useBody(req)
-  form.approved = false
+export default defineEventHandler(async (event) => {
+  const { form } = await readBody(event)
+  const client = useSupabaseServer()
+  form.approved = form.id ? form.approved : false
 
-  const { data, error } = await supabase.from("products").insert(form)
-  if (!error) {
+  const { data, error } = await client
+    .from('products')
+    .upsert(form)
+    .select()
+    .single()
+  if (!error && data) {
     return { success: true }
-  } else {
-    res.statusCode = 500
+  }
+  else {
+    event.res.statusCode = 500
     return { error }
   }
-}
+})

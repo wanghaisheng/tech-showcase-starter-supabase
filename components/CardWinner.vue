@@ -1,3 +1,12 @@
+<script setup lang="ts">
+defineProps({
+  obj: {
+    type: Object as any,
+    required: true,
+  },
+})
+</script>
+
 <template>
   <div
     class="w-full flex flex-col sm:flex-row items-center justify-center relative mt-4 md:mt-10"
@@ -28,6 +37,7 @@
             <CompressedImage
               class="absolute inset-0 w-full h-full object-cover"
               :src="obj.image"
+              :alt="obj.title"
             />
           </div>
         </NuxtLink>
@@ -36,18 +46,15 @@
     <div
       class="w-full sm:w-1/2 sm:ml-4 transform -translate-y-8 sm:translate-y-0 md:ml-12 bg-dark-600 sm:bg-transparent px-8 py-6 sm:p-0 rounded-xl"
     >
-      <h2 class="text-2xl md:text-4xl text-amber-300">Winner</h2>
-      <h5 class="text-3xl md:text-5xl mt-2">{{ obj.title }}</h5>
-      <h6 class="md:text-xl">― {{ obj.subtitle }}</h6>
+      <h2 class="text-2xl md:text-4xl text-amber-300">
+        Winner
+      </h2>
+      <h5 class="text-3xl md:text-5xl mt-2">
+        {{ obj.title }}
+      </h5>
+      <h6 class="md:text-xl">
+        ― {{ obj.subtitle }}
+      </h6>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-defineProps({
-  obj: {
-    type: Object as any,
-    required: true,
-  },
-})
-</script>

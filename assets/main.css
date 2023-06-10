@@ -1,18 +1,23 @@
 @font-face {
   font-family: custom-font;
+  font-weight: 400;
+  font-style: normal;
+  src: url(./fonts/CustomFont-Book.woff2) format("woff2");
+}
+@font-face {
+  font-family: custom-font;
   font-weight: 500;
   font-style: normal;
   src: url(./fonts/CustomFont-Medium.woff2) format("woff2");
 }
-html {
-  font-family: custom-font, BlinkMacSystemFont, -apple-system, Segoe UI, Roboto,
-    Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, Helvetica,
-    Arial, sans-serif;
-  overflow-x: hidden;
+
+:root {
+  --toastify-color-success: rgb(158, 68, 239) !important;
 }
+
 body {
   overflow-x: hidden;
-  @apply bg-dark-900;
+  @apply font-main bg-dark-900;
 }
 
 button {
@@ -36,7 +41,7 @@ input[type="text"],
 input[type="url"],
 input[type="email"],
 input[type="password"] {
-  @apply px-4 py-2 bg-dark-600 text-white font-thin rounded-lg placeholder-dark-50 border-3 border-dark-300 focus:ring-green-400 focus:outline-none focus:border-green-500;
+  @apply mt-2 px-6 py-3 bg-dark-500 bg-opacity-20 text-white font-thin rounded-xl placeholder-warm-gray-500 border-b-4 border-dark-500 border-opacity-10 transition duration-500 outline-none focus:shadow-xl;
 }
 
 input[type="color"] {
@@ -52,6 +57,17 @@ input[type="color"]::-webkit-color-swatch-wrapper {
 }
 input[type="color"]::-webkit-color-swatch {
   border: none;
+}
+input[type="checkbox"] {
+  appearance: none;
+  vertical-align: middle;
+  background-origin: border-box;
+  user-select: none;
+  flex-shrink: 0;
+  @apply p-0 inline-block rounded cursor-pointer h-5 w-5 checked:bg-emerald-400 checked:text-white checked:border-emerald-400  focus:ring-emerald-400 focus:ring-offset-transparent transition;
+}
+input[type="checkbox"]:checked {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
 }
 
 code,
@@ -81,7 +97,7 @@ code,
 }
 
 .btn {
-  @apply px-6 py-2 rounded-lg bg-green-500 border-3 border-green-500 transition hover:bg-green-600 hover:border-green-600 focus:border-green-600 focus:outline-none outline-none disabled:bg-green-400 disabled:cursor-not-allowed;
+  @apply px-6 py-2 rounded-lg bg-emerald-500 border-3 border-emerald-500 transition hover:bg-emerald-600 hover:border-emerald-600 focus:border-emerald-600 focus:outline-none outline-none disabled:bg-emerald-400 disabled:cursor-not-allowed;
 }
 
 .btn-pale {
@@ -128,5 +144,12 @@ code,
 }
 
 .card-grid {
-  @apply grid sm:grid-cols-2 lg:grid-cols-3 row-auto gap-4 gap-y-8 md:gap-8 lg:gap-16;
+  @apply grid sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 xl:gap-10;
+}
+
+.Toastify__toast {
+  @apply !rounded-lg shadow-xl;
+}
+.Toastify__toast-body > div:last-child {
+  @apply font-main;
 }
